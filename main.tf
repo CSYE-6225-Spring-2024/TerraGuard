@@ -5,7 +5,7 @@ provider "google" {
 }
 
 resource "google_compute_network" "vpc_network" {
-  name                    = "test-vpc"
+  name                    = "test-vpc"1
   auto_create_subnetworks = false
   routing_mode            = var.routing_mode
 }
