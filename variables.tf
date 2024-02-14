@@ -52,3 +52,4 @@ variable "route_gateway" {
   type        = string
   description = "Next hop gateway for the route"
 }
+
