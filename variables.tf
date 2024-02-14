@@ -18,6 +18,11 @@ variable "routing_mode" {
   description = "Routing mode for VPC"
 }
 
+variable "vpc_count" {
+  type        = number
+  description = "Count of VPCs to create"
+}
+
 variable "subnet-1-name" {
   type        = string
   description = "Subnet 1 name"
@@ -29,12 +34,12 @@ variable "subnet-2-name" {
 }
 
 variable "ip_cidr_range_subnet_1" {
-  type        = string
+  type        = list(string)
   description = "IP CIDR Range Subnet 1"
 }
 
 variable "ip_cidr_range_subnet_2" {
-  type        = string
+  type        = list(string)
   description = "IP CIDR Range Subnet 2"
 }
 
@@ -42,4 +47,3 @@ variable "route_dst_ip" {
   type        = string
   description = "Subnet 1 route destination range"
 }
-
