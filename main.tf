@@ -9,9 +9,8 @@ resource "random_string" "vpc_name" {
   upper   = false
 }
 resource "google_compute_network" "vpc_network" {
-  //name                    = "${random_string.vpc_name.result}-vpc"
   count                           = var.vpc_count
-  name                            = "cloud-vpc-${count.index + 1}"
+  name                            = "${random_string.vpc_name.result}-vpc"
   auto_create_subnetworks         = false
   routing_mode                    = var.routing_mode
   delete_default_routes_on_create = true
@@ -19,7 +18,7 @@ resource "google_compute_network" "vpc_network" {
 
 resource "google_compute_subnetwork" "subnet-1" {
   count         = var.vpc_count
-  name          = "${var.subnet-1-name}-${count.index + 1}"
+  name          = var.subnet-1-name
   ip_cidr_range = element(var.ip_cidr_range_subnet_1, count.index)
   region        = var.region
   network       = google_compute_network.vpc_network[count.index].name
@@ -27,7 +26,7 @@ resource "google_compute_subnetwork" "subnet-1" {
 
 resource "google_compute_subnetwork" "subnet-2" {
   count         = var.vpc_count
-  name          = "${var.subnet-2-name}-${count.index + 1}"
+  name          = var.subnet-2-name
   ip_cidr_range = element(var.ip_cidr_range_subnet_2, count.index)
   region        = var.region
   network       = google_compute_network.vpc_network[count.index].name
