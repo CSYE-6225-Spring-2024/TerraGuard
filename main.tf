@@ -2,7 +2,6 @@ provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
-123 dsf
 }
 resource "random_string" "vpc_name" {
   length  = 10
@@ -14,7 +13,7 @@ resource "google_compute_network" "vpc_network" {
   name                            = "${random_string.vpc_name.result}-vpc"
   auto_create_subnetworks         = false
   routing_mode                    = var.routing_mode
-  delete_default_routes_on_create = true
+  delete_default_routes_on_create = true1232
 }
 
 resource "google_compute_subnetwork" "subnet-1" {
