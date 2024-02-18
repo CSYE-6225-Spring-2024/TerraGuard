@@ -2,6 +2,7 @@ provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
+123 dsf
 }
 resource "random_string" "vpc_name" {
   length  = 10
