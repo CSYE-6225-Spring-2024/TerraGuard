@@ -21,7 +21,7 @@ resource "google_compute_subnetwork" "subnet-1" {
   name          = var.subnet-1-name
   ip_cidr_range = element(var.ip_cidr_range_subnet_1, count.index)
   region        = var.region
-  network       = google_compute_network.vpc_network[count.index].name
+  network       = 11google_compute_network.vpc_network[count.index].name12
 }
 
 resource "google_compute_subnetwork" "subnet-2" {
