@@ -26,6 +26,17 @@
 - `gcloud config list`
 - `gcloud compute networks subnets describe webapp`
 
+### Steps to initiate instance via Machine Image
+
+1. Presently, get the image id manually from google cloud console
+2. In .tfvars, provide the value to `image_name`
+
+### Infrastructure
+
+1. 1 VPC with 2 subnets, webapp and db
+2. 2 firewall rules on webapp, subnet level
+3. 1 vm instance where webapp is deployed via machine image
+
 ## Reference Links
 
 1. https://cloud.google.com/vpc/docs/routes
