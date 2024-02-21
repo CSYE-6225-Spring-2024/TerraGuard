@@ -23,11 +23,6 @@ variable "routing_mode" {
   description = "Routing mode for VPC"
 }
 
-variable "vpc_count" {
-  type        = number
-  description = "Count of VPCs to create"
-}
-
 variable "subnet-1-name" {
   type        = string
   description = "Subnet 1 name"
@@ -88,14 +83,14 @@ variable "image_name" {
   description = "Image name"
 }
 
-variable "image_type" {
+variable "disk_type" {
   type        = string
-  description = "Image type"
+  description = "Disk type"
 }
 
-variable "image_size" {
+variable "disk_size" {
   type        = number
-  description = "Image size"
+  description = "Disk size"
 }
 
 variable "source_ranges_firewall1" {
@@ -128,4 +123,19 @@ variable "allowed_protocol_firewall1" {
 variable "allowed_protocol_firewall2" {
   type        = string
   description = "Allowed protocol for firewall 2"
+}
+
+variable "webapp-inst-tags" {
+  type        = list(string)
+  description = "Tags for webapp instance"
+}
+
+variable "fw1-target-tags" {
+  type        = list(string)
+  description = "Tags for firewall1"
+}
+
+variable "fw2-target-tags" {
+  type        = list(string)
+  description = "Tags for firewall2"
 }
