@@ -144,3 +144,33 @@ variable "db-username" {
   type        = string
   description = "Database username"
 }
+
+variable "db-name" {
+  type        = string
+  description = "Database name"
+}
+
+variable "db-version" {
+  type = string
+  description = "Database version"
+}
+
+variable "sql-inst-avail-type" {
+  type = string
+  description = "SQL instance - availablility type"
+}
+
+variable "sql-inst-disk-type" {
+  type = string
+  description = "SQL instance - disk type"
+}
+
+variable "sql-inst-disk-size" {
+  type = number
+  description = "SQL instance - disk size"
+}
+
+variable "sql-inst-tier" {
+  type = string
+  description = "SQL instance - disk type"
+}

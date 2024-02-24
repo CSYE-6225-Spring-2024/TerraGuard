@@ -129,42 +129,49 @@ resource "google_compute_global_address" "private_ip_address" {
   address       = "10.0.2.0"
 }
 
-resource "google_service_networking_connection" "default" {
+resource "google_service_networking_connection" "svc-ntw-conn" {
   network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
   deletion_policy         = "ABANDON"
 }
 
-# resource "random_password" "password" {
-#   length           = 8
-#   special          = false
-#   upper            = false
-#   numeric          = false
-# }
+resource "random_password" "password" {
+  length           = 10
+  special          = false
+  upper            = false
+  numeric          = false
+}
+
+resource "random_string" "instance-name" {
+  length = 5
+  special = false
+  upper = false
+  numeric = false
+}
 
 resource "google_sql_database_instance" "db-instance" {
-  name             = "db-instance"
-  database_version = "POSTGRES_15"
+  name             = "db-${random_string.instance-name.result}-instance"
+  database_version = var.db-version
   settings {
-    tier      = "db-f1-micro"
-    disk_size = 100
-    disk_type = "pd-ssd"
+    tier      = var.sql-inst-tier
+    disk_size = var.sql-inst-disk-size
+    disk_type = var.sql-inst-disk-type
 
     ip_configuration {
       ipv4_enabled    = false
       private_network = google_compute_network.vpc_network.id
     }
-    availability_type = "REGIONAL"
+    availability_type = var.sql-inst-avail-type
   }
   project             = var.project_id
   deletion_protection = false
   depends_on = [google_compute_network.vpc_network,
-  google_service_networking_connection.default]
+  google_service_networking_connection.svc-ntw-conn]
 }
 
 resource "google_sql_database" "database" {
-  name       = "webapp"
+  name       = var.db-name
   instance   = google_sql_database_instance.db-instance.id
   project    = var.project_id
   depends_on = [google_sql_database_instance.db-instance]
@@ -173,7 +180,7 @@ resource "google_sql_database" "database" {
 resource "google_sql_user" "users" {
   name       = var.db-username
   instance   = google_sql_database_instance.db-instance.id
-  password   = "testing"
+  password   = random_password.password.result
   project    = var.project_id
   depends_on = [google_sql_database_instance.db-instance]
 }
