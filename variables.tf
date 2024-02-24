@@ -139,3 +139,8 @@ variable "fw2-target-tags" {
   type        = list(string)
   description = "Tags for firewall2"
 }
+
+variable "db-username" {
+  type        = string
+  description = "Database username"
+}

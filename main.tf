@@ -5,7 +5,7 @@ provider "google" {
 }
 
 resource "google_compute_network" "vpc_network" {
-  name                            = "cloud-${var.vpc_name}-vpc"
+  name                            = "cloud-test-${var.vpc_name}-vpc"
   auto_create_subnetworks         = false
   routing_mode                    = var.routing_mode
   delete_default_routes_on_create = true
@@ -19,10 +19,11 @@ resource "google_compute_subnetwork" "subnet-1" {
 }
 
 resource "google_compute_subnetwork" "subnet-2" {
-  name          = var.subnet-2-name
-  ip_cidr_range = var.ip_cidr_range_subnet_2[0]
-  region        = var.region
-  network       = google_compute_network.vpc_network.id
+  name                     = var.subnet-2-name
+  ip_cidr_range            = var.ip_cidr_range_subnet_2[0]
+  region                   = var.region
+  network                  = google_compute_network.vpc_network.id
+  private_ip_google_access = true
 }
 
 resource "google_compute_route" "webapp-route" {
@@ -47,7 +48,7 @@ resource "google_compute_firewall" "webapp-firewall1" {
 resource "google_compute_firewall" "webapp-firewall2" {
   name    = var.firewall_name2
   network = google_compute_network.vpc_network.id
-  deny {
+  allow {
     protocol = var.allowed_protocol_firewall2
     ports    = var.application_ports_firewall2
   }
@@ -81,4 +82,98 @@ resource "google_compute_instance" "webapp-instance" {
   ]
 
   tags = var.webapp-inst-tags
+  metadata = {
+    startup-script = <<-EOT
+#!/bin/bash
+cd /opt/webapp/
+sudo tee -a .env <<EOF >/dev/null
+DB_NAME=webapp
+DB_PWD=testing
+DB_USER=webapp
+HOST=${google_sql_database_instance.db-instance.private_ip_address}
+EOF
+EOT
+  }
+}
+
+# resource "google_compute_global_address" "default" {
+#   provider     = google-beta
+#   project      = var.project_id
+#   name         = "global-psconnect-ip"
+#   address_type = "INTERNAL"
+#   purpose      = "PRIVATE_SERVICE_CONNECT"
+#   network      = google_compute_network.vpc_network.id
+#   address      = "10.16.1.0"
+# }
+
+# resource "google_compute_global_forwarding_rule" "default" {
+#   provider              = google-beta
+#   project               = var.project_id
+#   name                  = "globalrule"
+#   target                = "all-apis"
+#   network               = google_compute_network.vpc_network.id
+#   ip_address            =  google_compute_global_address.default.id
+#   load_balancing_scheme = ""
+#   service_directory_registrations {
+#     namespace                = "sd-namespace"
+#     service_directory_region = var.region
+#   }
+# }
+
+resource "google_compute_global_address" "private_ip_address" {
+  name          = "private-ip-address"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 24
+  network       = google_compute_network.vpc_network.id
+  address       = "10.0.2.0"
+}
+
+resource "google_service_networking_connection" "default" {
+  network                 = google_compute_network.vpc_network.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+  deletion_policy         = "ABANDON"
+}
+
+# resource "random_password" "password" {
+#   length           = 8
+#   special          = false
+#   upper            = false
+#   numeric          = false
+# }
+
+resource "google_sql_database_instance" "db-instance" {
+  name             = "db-instance"
+  database_version = "POSTGRES_15"
+  settings {
+    tier      = "db-f1-micro"
+    disk_size = 100
+    disk_type = "pd-ssd"
+
+    ip_configuration {
+      ipv4_enabled    = false
+      private_network = google_compute_network.vpc_network.id
+    }
+    availability_type = "REGIONAL"
+  }
+  project             = var.project_id
+  deletion_protection = false
+  depends_on = [google_compute_network.vpc_network,
+  google_service_networking_connection.default]
+}
+
+resource "google_sql_database" "database" {
+  name       = "webapp"
+  instance   = google_sql_database_instance.db-instance.id
+  project    = var.project_id
+  depends_on = [google_sql_database_instance.db-instance]
+}
+
+resource "google_sql_user" "users" {
+  name       = var.db-username
+  instance   = google_sql_database_instance.db-instance.id
+  password   = "testing"
+  project    = var.project_id
+  depends_on = [google_sql_database_instance.db-instance]
 }
