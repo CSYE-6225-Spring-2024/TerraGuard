@@ -78,7 +78,8 @@ resource "google_compute_instance" "webapp-instance" {
   depends_on = [
     google_compute_network.vpc_network,
     google_compute_firewall.webapp-firewall1,
-    google_compute_firewall.webapp-firewall2
+    google_compute_firewall.webapp-firewall2,
+    google_sql_database_instance.db-instance
   ]
 
   tags = var.webapp-inst-tags
@@ -87,66 +88,43 @@ resource "google_compute_instance" "webapp-instance" {
 #!/bin/bash
 cd /opt/webapp/
 sudo tee -a .env <<EOF >/dev/null
-DB_NAME=webapp
-DB_PWD=testing
-DB_USER=webapp
+DB_NAME=${var.db-name}
+DB_PWD=${random_password.password.result}
+DB_USER=${var.db-username}
 HOST=${google_sql_database_instance.db-instance.private_ip_address}
 EOF
 EOT
   }
 }
 
-# resource "google_compute_global_address" "default" {
-#   provider     = google-beta
-#   project      = var.project_id
-#   name         = "global-psconnect-ip"
-#   address_type = "INTERNAL"
-#   purpose      = "PRIVATE_SERVICE_CONNECT"
-#   network      = google_compute_network.vpc_network.id
-#   address      = "10.16.1.0"
-# }
-
-# resource "google_compute_global_forwarding_rule" "default" {
-#   provider              = google-beta
-#   project               = var.project_id
-#   name                  = "globalrule"
-#   target                = "all-apis"
-#   network               = google_compute_network.vpc_network.id
-#   ip_address            =  google_compute_global_address.default.id
-#   load_balancing_scheme = ""
-#   service_directory_registrations {
-#     namespace                = "sd-namespace"
-#     service_directory_region = var.region
-#   }
-# }
-
 resource "google_compute_global_address" "private_ip_address" {
-  name          = "private-ip-address"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 24
+  project       = var.project_id
+  name          = "global-${random_string.instance-name.result}-addr"
+  purpose       = var.global-addr-purpose
+  address_type  = var.global-addr-type
+  prefix_length = var.global-addr-prefixLen
   network       = google_compute_network.vpc_network.id
-  address       = "10.0.2.0"
+  address       = var.global-addr-ip-addr
 }
 
 resource "google_service_networking_connection" "svc-ntw-conn" {
   network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-  deletion_policy         = "ABANDON"
+  deletion_policy         = var.del-pol-svc-ntw
 }
 
 resource "random_password" "password" {
-  length           = 10
-  special          = false
-  upper            = false
-  numeric          = false
+  length  = 10
+  special = false
+  upper   = false
+  numeric = false
 }
 
 resource "random_string" "instance-name" {
-  length = 5
+  length  = 5
   special = false
-  upper = false
+  upper   = false
   numeric = false
 }
 

@@ -151,26 +151,51 @@ variable "db-name" {
 }
 
 variable "db-version" {
-  type = string
+  type        = string
   description = "Database version"
 }
 
 variable "sql-inst-avail-type" {
-  type = string
+  type        = string
   description = "SQL instance - availablility type"
 }
 
 variable "sql-inst-disk-type" {
-  type = string
+  type        = string
   description = "SQL instance - disk type"
 }
 
 variable "sql-inst-disk-size" {
-  type = number
+  type        = number
   description = "SQL instance - disk size"
 }
 
 variable "sql-inst-tier" {
-  type = string
+  type        = string
   description = "SQL instance - disk type"
+}
+
+variable "del-pol-svc-ntw" {
+  type        = string
+  description = "Deletion policy of Service Network Connection"
+}
+
+variable "global-addr-purpose" {
+  type        = string
+  description = "Purpose for global address"
+}
+
+variable "global-addr-type" {
+  type        = string
+  description = "Global address - address type"
+}
+
+variable "global-addr-prefixLen" {
+  type        = number
+  description = "Global address prefix length"
+}
+
+variable "global-addr-ip-addr" {
+  type        = string
+  description = "Global address - IP Address"
 }
