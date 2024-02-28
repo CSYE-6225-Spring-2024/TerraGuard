@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 4.0"
+    }
+  }
+}
+
 provider "google" {
   project = var.project_id
   region  = var.region
@@ -68,7 +77,7 @@ resource "google_compute_firewall" "webapp-firewall1" {
 resource "google_compute_firewall" "webapp-firewall2" {
   name    = var.firewall_name2
   network = google_compute_network.vpc_network.id
-  allow {
+  deny {
     protocol = var.allowed_protocol_firewall2
     ports    = var.application_ports_firewall2
   }
@@ -122,6 +131,7 @@ EOT
 }
 
 resource "google_compute_global_address" "private_ip_address" {
+  provider      = google-beta 
   name          = var.gobal-addr-name
   purpose       = var.global-addr-purpose
   address_type  = var.global-addr-type
@@ -131,10 +141,10 @@ resource "google_compute_global_address" "private_ip_address" {
 }
 
 resource "google_service_networking_connection" "svc_ntw_conn" {
+  provider                = google-beta
   network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-  deletion_policy         = var.del-pol-svc-ntw
   depends_on              = [google_compute_global_address.private_ip_address]
 }
 

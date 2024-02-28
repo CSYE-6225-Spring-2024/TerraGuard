@@ -175,11 +175,6 @@ variable "sql-inst-tier" {
   description = "SQL instance - disk type"
 }
 
-variable "del-pol-svc-ntw" {
-  type        = string
-  description = "Deletion policy of Service Network Connection"
-}
-
 variable "global-addr-purpose" {
   type        = string
   description = "Purpose for global address"
