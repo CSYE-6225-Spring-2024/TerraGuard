@@ -126,6 +126,7 @@ DB_HOST=${google_sql_database_instance.db-instance.private_ip_address}
 WEB_PORT=${var.web-port}
 DB_PORT=${var.db-port}
 EOF
+sudo chown csye6225:csye6225 .env
 EOT
   }
 }
