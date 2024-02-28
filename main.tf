@@ -131,8 +131,32 @@ EOT
   }
 }
 
+resource "google_compute_firewall" "db-sql-fw" {
+  name    = var.db-allow-fw-name
+  network = google_compute_network.vpc_network.id
+  allow {
+    protocol = var.db-allow-fw-prot
+    ports    = var.db-allow-fw-ports
+  }
+  direction          = var.db-allow-fw-dir
+  destination_ranges = [google_sql_database_instance.db-instance.private_ip_address]
+  target_tags        = var.db-allow-tags
+}
+
+resource "google_compute_firewall" "deny-db-sql-fw" {
+  name    = var.db-deny-fw-name
+  network = google_compute_network.vpc_network.id
+  deny {
+    protocol = var.db-deny-fw-prot
+    ports    = var.db-deny-fw-ports
+  }
+  priority           = var.db-deny-priority
+  direction          = var.db-deny-fw-dir
+  destination_ranges = [google_sql_database_instance.db-instance.private_ip_address]
+}
+
 resource "google_compute_global_address" "private_ip_address" {
-  provider      = google-beta 
+  provider      = google-beta
   name          = var.gobal-addr-name
   purpose       = var.global-addr-purpose
   address_type  = var.global-addr-type
