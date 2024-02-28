@@ -199,3 +199,23 @@ variable "global-addr-ip-addr" {
   type        = string
   description = "Global address - IP Address"
 }
+
+variable "web-port" {
+  type        = number
+  description = "Web app port"
+}
+
+variable "gobal-addr-name" {
+  type        = string
+  description = "Global Address Name"
+}
+
+variable "db-port" {
+  type        = number
+  description = "Database port for postgres"
+}
+
+variable "db-user-del-pol" {
+  type        = string
+  description = "Database user deletion policy"
+}
