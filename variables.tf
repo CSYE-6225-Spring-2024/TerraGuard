@@ -214,3 +214,53 @@ variable "db-user-del-pol" {
   type        = string
   description = "Database user deletion policy"
 }
+
+variable "db-allow-tags" {
+  type        = list(string)
+  description = "Allow instances to connect to DB"
+}
+
+variable "db-allow-fw-name" {
+  type        = string
+  description = "Firewall name to allow traffic from db instance"
+}
+
+variable "db-deny-fw-name" {
+  type        = string
+  description = "Firewall name to deny traffic from db instance"
+}
+
+variable "db-deny-priority" {
+  type        = number
+  description = "Priority to firewall that denies traffic from db instance"
+}
+
+variable "db-allow-fw-ports" {
+  type        = list(number)
+  description = "Firewall allow DB access ports"
+}
+
+variable "db-allow-fw-prot" {
+  type        = string
+  description = "Firewall allow DB access protocol"
+}
+
+variable "db-deny-fw-ports" {
+  type        = list(number)
+  description = "Firewall deny DB access ports"
+}
+
+variable "db-deny-fw-prot" {
+  type        = string
+  description = "Firewall allow DB deny protocol"
+}
+
+variable "db-allow-fw-dir" {
+  type        = string
+  description = "Allow firewall direction"
+}
+
+variable "db-deny-fw-dir" {
+  type        = string
+  description = "Deny firewall direction"
+}
