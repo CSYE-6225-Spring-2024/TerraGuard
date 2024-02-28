@@ -25,7 +25,7 @@ resource "random_string" "instance-name" {
 }
 
 resource "google_compute_network" "vpc_network" {
-  name                            = "cloud-${var.vpc_name}-vpc"
+  name                            = "cloud-test-${var.vpc_name}-vpc"
   auto_create_subnetworks         = false
   routing_mode                    = var.routing_mode
   delete_default_routes_on_create = true
@@ -68,7 +68,7 @@ resource "google_compute_firewall" "webapp-firewall1" {
 resource "google_compute_firewall" "webapp-firewall2" {
   name    = var.firewall_name2
   network = google_compute_network.vpc_network.id
-  deny {
+  allow {
     protocol = var.allowed_protocol_firewall2
     ports    = var.application_ports_firewall2
   }
@@ -137,7 +137,6 @@ resource "google_service_networking_connection" "svc_ntw_conn" {
   deletion_policy         = var.del-pol-svc-ntw
   depends_on              = [google_compute_global_address.private_ip_address]
 }
-
 
 resource "google_sql_database_instance" "db-instance" {
   name             = "db-${random_string.instance-name.result}-inst"
