@@ -4,6 +4,26 @@ provider "google" {
   zone    = var.zone
 }
 
+provider "google-beta" {
+  project = var.project_id
+  region  = var.region
+  zone    = var.zone
+}
+
+resource "random_password" "password" {
+  length  = 10
+  special = false
+  upper   = false
+  numeric = false
+}
+
+resource "random_string" "instance-name" {
+  length  = 4
+  special = false
+  upper   = false
+  numeric = false
+}
+
 resource "google_compute_network" "vpc_network" {
   name                            = "cloud-test-${var.vpc_name}-vpc"
   auto_create_subnetworks         = false
@@ -77,8 +97,7 @@ resource "google_compute_instance" "webapp-instance" {
   allow_stopping_for_update = true
   depends_on = [
     google_compute_network.vpc_network,
-    google_compute_firewall.webapp-firewall1,
-    google_compute_firewall.webapp-firewall2,
+    google_compute_subnetwork.subnet-1,
     google_sql_database_instance.db-instance
   ]
 
@@ -87,19 +106,23 @@ resource "google_compute_instance" "webapp-instance" {
     startup-script = <<-EOT
 #!/bin/bash
 cd /opt/webapp/
+if [ -e .env ]; then
+  sudo rm .env
+fi
 sudo tee -a .env <<EOF >/dev/null
 DB_NAME=${var.db-name}
 DB_PWD=${random_password.password.result}
 DB_USER=${var.db-username}
-HOST=${google_sql_database_instance.db-instance.private_ip_address}
+DB_HOST=${google_sql_database_instance.db-instance.private_ip_address}
+WEB_PORT=${var.web-port}
+DB_PORT=${var.db-port}
 EOF
 EOT
   }
 }
 
 resource "google_compute_global_address" "private_ip_address" {
-  project       = var.project_id
-  name          = "global-${random_string.instance-name.result}-addr"
+  name          = var.gobal-addr-name
   purpose       = var.global-addr-purpose
   address_type  = var.global-addr-type
   prefix_length = var.global-addr-prefixLen
@@ -107,29 +130,16 @@ resource "google_compute_global_address" "private_ip_address" {
   address       = var.global-addr-ip-addr
 }
 
-resource "google_service_networking_connection" "svc-ntw-conn" {
+resource "google_service_networking_connection" "svc_ntw_conn" {
   network                 = google_compute_network.vpc_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
   deletion_policy         = var.del-pol-svc-ntw
-}
-
-resource "random_password" "password" {
-  length  = 10
-  special = false
-  upper   = false
-  numeric = false
-}
-
-resource "random_string" "instance-name" {
-  length  = 5
-  special = false
-  upper   = false
-  numeric = false
+  depends_on              = [google_compute_global_address.private_ip_address]
 }
 
 resource "google_sql_database_instance" "db-instance" {
-  name             = "db-${random_string.instance-name.result}-instance"
+  name             = "db-${random_string.instance-name.result}-inst"
   database_version = var.db-version
   settings {
     tier      = var.sql-inst-tier
@@ -145,7 +155,7 @@ resource "google_sql_database_instance" "db-instance" {
   project             = var.project_id
   deletion_protection = false
   depends_on = [google_compute_network.vpc_network,
-  google_service_networking_connection.svc-ntw-conn]
+  google_service_networking_connection.svc_ntw_conn]
 }
 
 resource "google_sql_database" "database" {
@@ -156,9 +166,10 @@ resource "google_sql_database" "database" {
 }
 
 resource "google_sql_user" "users" {
-  name       = var.db-username
-  instance   = google_sql_database_instance.db-instance.id
-  password   = random_password.password.result
-  project    = var.project_id
-  depends_on = [google_sql_database_instance.db-instance]
+  name     = var.db-username
+  instance = google_sql_database_instance.db-instance.id
+  password = random_password.password.result
+  depends_on = [google_sql_database_instance.db-instance, google_sql_database.database,
+  random_password.password]
+  deletion_policy = var.db-user-del-pol
 }
