@@ -264,3 +264,8 @@ variable "db-deny-fw-dir" {
   type        = string
   description = "Deny firewall direction"
 }
+
+variable "db-inst-ipv4" {
+  type        = bool
+  description = "Bool value of public IPV4 enabling in SQL Instance"
+}
