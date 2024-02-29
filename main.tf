@@ -182,7 +182,7 @@ resource "google_sql_database_instance" "db-instance" {
     disk_type = var.sql-inst-disk-type
 
     ip_configuration {
-      ipv4_enabled    = false
+      ipv4_enabled    = var.db-inst-ipv4
       private_network = google_compute_network.vpc_network.id
     }
     availability_type = var.sql-inst-avail-type
