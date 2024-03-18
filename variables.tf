@@ -269,3 +269,38 @@ variable "db-inst-ipv4" {
   type        = bool
   description = "Bool value of public IPV4 enabling in SQL Instance"
 }
+
+variable "dns_zone_name" {
+  type        = string
+  description = "DNS Zone Name"
+}
+
+variable "dns_name" {
+  type        = string
+  description = "DNS Name"
+}
+
+variable "dns_record_type" {
+  type        = string
+  description = "DNS Record Type"
+}
+
+variable "google_service_accountID" {
+  type        = string
+  description = "google service account id"
+}
+
+variable "service_acc_display_name" {
+  type        = string
+  description = "Service account display name"
+}
+
+variable "iam_bind_role_1" {
+  type        = string
+  description = "IAM bind role 1"
+}
+
+variable "iam_bind_role_2" {
+  type        = string
+  description = "IAM bind role 2"
+}

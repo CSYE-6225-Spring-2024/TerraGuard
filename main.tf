@@ -77,7 +77,7 @@ resource "google_compute_firewall" "webapp-firewall1" {
 resource "google_compute_firewall" "webapp-firewall2" {
   name    = var.firewall_name2
   network = google_compute_network.vpc_network.id
-  deny {
+  allow {
     protocol = var.allowed_protocol_firewall2
     ports    = var.application_ports_firewall2
   }
@@ -109,6 +109,11 @@ resource "google_compute_instance" "webapp-instance" {
     google_compute_subnetwork.subnet-1,
     google_sql_database_instance.db-instance
   ]
+
+  service_account {
+    email  = google_service_account.google_service_acc.email
+    scopes = ["cloud-platform"]
+  }
 
   tags = var.webapp-inst-tags
   metadata = {
@@ -208,3 +213,29 @@ resource "google_sql_user" "users" {
   random_password.password]
   deletion_policy = var.db-user-del-pol
 }
+
+resource "google_dns_record_set" "DNS_ARecord" {
+  name         = var.dns_name
+  managed_zone = var.dns_zone_name
+  type         = var.dns_record_type
+  rrdatas      = [google_compute_instance.webapp-instance.network_interface[0].access_config[0].nat_ip]
+  depends_on   = [google_compute_instance.webapp-instance]
+}
+
+resource "google_service_account" "google_service_acc" {
+  account_id   = var.google_service_accountID
+  display_name = var.service_acc_display_name
+}
+
+resource "google_project_iam_binding" "project_binding_r1" {
+  project = var.project_id
+  role    = var.iam_bind_role_1
+  members = [google_service_account.google_service_acc.member]
+}
+
+resource "google_project_iam_binding" "project_binding_r2" {
+  project = var.project_id
+  role    = var.iam_bind_role_2
+  members = [google_service_account.google_service_acc.member]
+}
+
