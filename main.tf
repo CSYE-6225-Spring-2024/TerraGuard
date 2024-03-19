@@ -107,12 +107,13 @@ resource "google_compute_instance" "webapp-instance" {
   depends_on = [
     google_compute_network.vpc_network,
     google_compute_subnetwork.subnet-1,
-    google_sql_database_instance.db-instance
+    google_sql_database_instance.db-instance,
+    google_service_account.google_service_acc
   ]
 
   service_account {
     email  = google_service_account.google_service_acc.email
-    scopes = ["cloud-platform"]
+    scopes = ["logging-write", "monitoring-write"]
   }
 
   tags = var.webapp-inst-tags
@@ -130,6 +131,7 @@ DB_USER=${var.db-username}
 DB_HOST=${google_sql_database_instance.db-instance.private_ip_address}
 WEB_PORT=${var.web-port}
 DB_PORT=${var.db-port}
+NODE_ENV=${var.node_env}
 EOF
 sudo chown csye6225:csye6225 .env
 EOT
@@ -228,14 +230,16 @@ resource "google_service_account" "google_service_acc" {
 }
 
 resource "google_project_iam_binding" "project_binding_r1" {
-  project = var.project_id
-  role    = var.iam_bind_role_1
-  members = [google_service_account.google_service_acc.member]
+  project    = var.project_id
+  role       = var.iam_bind_role_1
+  members    = [google_service_account.google_service_acc.member]
+  depends_on = [google_service_account.google_service_acc]
 }
 
 resource "google_project_iam_binding" "project_binding_r2" {
-  project = var.project_id
-  role    = var.iam_bind_role_2
-  members = [google_service_account.google_service_acc.member]
+  project    = var.project_id
+  role       = var.iam_bind_role_2
+  members    = [google_service_account.google_service_acc.member]
+  depends_on = [google_service_account.google_service_acc]
 }
 

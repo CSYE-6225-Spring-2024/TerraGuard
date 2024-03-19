@@ -304,3 +304,8 @@ variable "iam_bind_role_2" {
   type        = string
   description = "IAM bind role 2"
 }
+
+variable "node_env" {
+  type        = string
+  description = "NODE Environment Type"
+}
