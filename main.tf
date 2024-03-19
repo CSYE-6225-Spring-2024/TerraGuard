@@ -77,7 +77,7 @@ resource "google_compute_firewall" "webapp-firewall1" {
 resource "google_compute_firewall" "webapp-firewall2" {
   name    = var.firewall_name2
   network = google_compute_network.vpc_network.id
-  deny {
+  allow {
     protocol = var.allowed_protocol_firewall2
     ports    = var.application_ports_firewall2
   }
