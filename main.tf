@@ -248,7 +248,7 @@ resource "google_project_iam_binding" "project_binding_r2" {
 }
 
 resource "google_storage_bucket" "bucket-webapp" {
-  name                        = "cf-bucket-csye6225" # Every bucket name must be globally unique
+  name                        = "cf-bucket-csye6225"
   location                    = "US"
   uniform_bucket_level_access = true
 }
@@ -261,10 +261,11 @@ resource "google_storage_bucket_object" "object-webapp" {
 
 resource "google_cloudfunctions2_function" "cloudFunction" {
   name     = "cf-webapp"
-  location = "us-central1"
+  location = var.region
   build_config {
     runtime     = "nodejs18"
     entry_point = "sendEmail"
+
     source {
       storage_source {
         bucket = google_storage_bucket.bucket-webapp.name
@@ -278,13 +279,24 @@ resource "google_cloudfunctions2_function" "cloudFunction" {
     available_memory      = "256M"
     timeout_seconds       = 60
     service_account_email = google_service_account.google_service_acc_emailing.email
+    vpc_connector         = google_vpc_access_connector.connector.id
+    # vpc_connector_egress_settings = "ALL_TRAFFIC"
+    environment_variables = {
+      DB_NAME  = var.db-name
+      DB_PWD   = random_password.password.result
+      DB_USER  = var.db-username
+      DB_HOST  = google_sql_database_instance.db-instance.private_ip_address
+      WEB_PORT = var.web-port
+      DB_PORT  = var.db-port
+    }
   }
 
   event_trigger {
-    trigger_region = "us-central1"
-    event_type     = "google.cloud.pubsub.topic.v1.messagePublished"
-    pubsub_topic   = google_pubsub_topic.webapp_pub_sub.id
-    retry_policy   = "RETRY_POLICY_RETRY"
+    trigger_region        = var.region
+    event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
+    pubsub_topic          = google_pubsub_topic.webapp_pub_sub.id
+    retry_policy          = "RETRY_POLICY_RETRY"
+    service_account_email = google_service_account.google_service_acc_emailing.email
   }
 }
 
@@ -306,3 +318,9 @@ resource "google_cloudfunctions2_function_iam_binding" "bindingCloudFunction" {
   members        = [google_service_account.google_service_acc_emailing.member]
 }
 
+resource "google_vpc_access_connector" "connector" {
+  name          = "vpc-access-conn-webapp"
+  ip_cidr_range = "10.2.0.0/28"
+  network       = google_compute_network.vpc_network.id
+  machine_type  = "e2-standard-4"
+}
