@@ -113,7 +113,7 @@ resource "google_compute_instance" "webapp-instance" {
 
   service_account {
     email  = google_service_account.google_service_acc.email
-    scopes = ["logging-write", "monitoring-write"]
+    scopes = ["logging-write", "monitoring-write", "pubsub"]
   }
 
   tags = var.webapp-inst-tags
@@ -229,6 +229,10 @@ resource "google_service_account" "google_service_acc" {
   display_name = var.service_acc_display_name
 }
 
+resource "google_service_account" "google_service_acc_emailing" {
+  account_id = var.google_service_accountID_emailing
+}
+
 resource "google_project_iam_binding" "project_binding_r1" {
   project    = var.project_id
   role       = var.iam_bind_role_1
@@ -241,5 +245,64 @@ resource "google_project_iam_binding" "project_binding_r2" {
   role       = var.iam_bind_role_2
   members    = [google_service_account.google_service_acc.member]
   depends_on = [google_service_account.google_service_acc]
+}
+
+resource "google_storage_bucket" "bucket-webapp" {
+  name                        = "cf-bucket-csye6225" # Every bucket name must be globally unique
+  location                    = "US"
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_object" "object-webapp" {
+  name   = "serverless.zip"
+  bucket = google_storage_bucket.bucket-webapp.name
+  source = "serverless.zip" # Add path to the zipped function source code
+}
+
+resource "google_cloudfunctions2_function" "cloudFunction" {
+  name     = "cf-webapp"
+  location = "us-central1"
+  build_config {
+    runtime     = "nodejs18"
+    entry_point = "sendEmail"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket-webapp.name
+        object = google_storage_bucket_object.object-webapp.name
+      }
+    }
+  }
+
+  service_config {
+    max_instance_count    = 1
+    available_memory      = "256M"
+    timeout_seconds       = 60
+    service_account_email = google_service_account.google_service_acc_emailing.email
+  }
+
+  event_trigger {
+    trigger_region = "us-central1"
+    event_type     = "google.cloud.pubsub.topic.v1.messagePublished"
+    pubsub_topic   = google_pubsub_topic.webapp_pub_sub.id
+    retry_policy   = "RETRY_POLICY_RETRY"
+  }
+}
+
+resource "google_pubsub_topic" "webapp_pub_sub" {
+  name                       = "verify_email"
+  message_retention_duration = "604800s"
+}
+
+resource "google_pubsub_topic_iam_binding" "bindingPubSub" {
+  topic   = google_pubsub_topic.webapp_pub_sub.name
+  role    = "roles/pubsub.publisher"
+  members = [google_service_account.google_service_acc.member, google_service_account.google_service_acc_emailing.member]
+}
+
+resource "google_cloudfunctions2_function_iam_binding" "bindingCloudFunction" {
+  location       = google_cloudfunctions2_function.cloudFunction.location
+  cloud_function = google_cloudfunctions2_function.cloudFunction.name
+  role           = "roles/viewer"
+  members        = [google_service_account.google_service_acc_emailing.member]
 }
 
