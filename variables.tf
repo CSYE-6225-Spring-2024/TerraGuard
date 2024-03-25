@@ -290,6 +290,11 @@ variable "google_service_accountID" {
   description = "google service account id"
 }
 
+variable "google_service_accountID_emailing" {
+  type        = string
+  description = "google service account for email purposes"
+}
+
 variable "service_acc_display_name" {
   type        = string
   description = "Service account display name"
