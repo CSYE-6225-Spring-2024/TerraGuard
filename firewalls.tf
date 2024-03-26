@@ -46,15 +46,15 @@ resource "google_compute_firewall" "deny-db-sql-fw" {
   destination_ranges = [google_sql_database_instance.db-instance.private_ip_address]
 }
 
-resource "google_compute_firewall" "cf-firewall" {
-  name    = "cloudf-fw"
+resource "google_compute_firewall" "cloudfunction-fw" {
+  name    = var.cloud_func_fw
   network = google_compute_network.vpc_network.id
   allow {
-    protocol = "tcp"
-    ports    = ["5432"]
+    protocol = var.cf-protocol-fw
+    ports    = var.cf-port-fw
   }
-  priority           = 900
-  direction          = "EGRESS"
+  priority           = var.cf-priority-fw
+  direction          = var.cf-direction-fw
   destination_ranges = [google_sql_database_instance.db-instance.private_ip_address]
-  source_ranges      = ["10.11.2.0/28"]
+  source_ranges      = var.cf-source_ranges
 }
