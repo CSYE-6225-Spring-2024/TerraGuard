@@ -429,3 +429,18 @@ variable "cf-source_ranges" {
   type        = list(string)
   description = "Cloud function source ranges"
 }
+
+variable "cf-mailgun-api" {
+  type        = string
+  description = "Mailgun private API key"
+}
+
+variable "cf-link-domain" {
+  type        = string
+  description = "Domain name"
+}
+
+variable "cf-email-domain" {
+  type        = string
+  description = "Email domain name"
+}

@@ -89,7 +89,7 @@ resource "google_compute_instance" "webapp-instance" {
 
   service_account {
     email  = google_service_account.google_service_acc.email
-    scopes = ["logging-write", "monitoring-write", "pubsub", "cloud-platform"]
+    scopes = ["logging-write", "monitoring-write", "pubsub"]
   }
 
   tags = var.webapp-inst-tags
@@ -127,10 +127,6 @@ resource "google_service_account" "google_service_acc" {
   account_id   = var.google_service_accountID
   display_name = var.service_acc_display_name
 }
-
-# resource "google_service_account" "google_service_acc_emailing" {
-#   account_id = var.google_service_accountID_emailing
-# }
 
 resource "google_project_iam_binding" "project_binding_r1" {
   project    = var.project_id
