@@ -236,7 +236,7 @@ variable "db-deny-priority" {
 }
 
 variable "db-allow-fw-ports" {
-  type        = list(number)
+  type        = list(string)
   description = "Firewall allow DB access ports"
 }
 
@@ -246,7 +246,7 @@ variable "db-allow-fw-prot" {
 }
 
 variable "db-deny-fw-ports" {
-  type        = list(number)
+  type        = list(string)
   description = "Firewall deny DB access ports"
 }
 
@@ -318,4 +318,114 @@ variable "node_env" {
 variable "email_expiry_time" {
   type        = number
   description = "Email expiration time"
+}
+
+variable "cloud_func_fw" {
+  type        = string
+  description = "Name of cloud function firewall giving access to talk to DB"
+}
+
+variable "cf-protocol-fw" {
+  type        = string
+  description = "cloud function firewall - protocol"
+}
+
+variable "cf-port-fw" {
+  type        = list(string)
+  description = "cloud function firewall - port"
+}
+
+variable "cf-priority-fw" {
+  type        = number
+  description = "cloud function firewall - priority"
+}
+
+variable "cf-direction-fw" {
+  type        = string
+  description = "cloud function firewall - direction"
+}
+
+variable "cf-name" {
+  type        = string
+  description = "cloud function name"
+}
+
+variable "cf-runtime" {
+  type        = string
+  description = "cloud function run time"
+}
+
+variable "cf-entrypoint" {
+  type        = string
+  description = "cloud function entrypoint"
+}
+
+variable "cf-max_instance_count" {
+  type        = number
+  description = "cloud function max instance count"
+}
+
+variable "cf-available_memory" {
+  type        = string
+  description = "cloud function available_memory "
+}
+
+variable "cf-timeout_seconds" {
+  type        = number
+  description = "cloud function timeout_seconds "
+}
+
+variable "cf-event_type" {
+  type        = string
+  description = "cloud function event_type"
+}
+
+variable "cf-retry_policy" {
+  type        = string
+  description = "cloud function retry_policy"
+}
+
+variable "pubsub-topicName" {
+  type        = string
+  description = "pubsub topic name"
+}
+
+variable "pubsub-message_retention_duration" {
+  type        = string
+  description = "pubsub message retention time"
+}
+
+variable "pubsub-role" {
+  type        = string
+  description = "pubsub-role IAM binding"
+}
+
+variable "cf-role1" {
+  type        = string
+  description = "cf-role1 IAM binding"
+}
+
+variable "cf-role2" {
+  type        = string
+  description = "cf-role2 IAM binding"
+}
+
+variable "vac-name" {
+  type        = string
+  description = "VPC access connector name"
+}
+
+variable "vac-ip_cidr_range" {
+  type        = string
+  description = "VPC access connector name"
+}
+
+variable "vac-machine_type" {
+  type        = string
+  description = "VPC access connector name"
+}
+
+variable "cf-source_ranges" {
+  type        = list(string)
+  description = "Cloud function source ranges"
 }
