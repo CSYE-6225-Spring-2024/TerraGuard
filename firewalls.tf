@@ -58,3 +58,14 @@ resource "google_compute_firewall" "cloudfunction-fw" {
   destination_ranges = [google_sql_database_instance.db-instance.private_ip_address]
   source_ranges      = var.cf-source_ranges
 }
+
+resource "google_compute_firewall" "cloudfunction-fw-https" {
+  name    = "https-firewall"
+  network = google_compute_network.vpc_network.id
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
+  }
+  source_ranges      = ["0.0.0.0/0"]
+  destination_ranges = var.cf-source_ranges
+}
