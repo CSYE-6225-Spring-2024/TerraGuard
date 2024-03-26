@@ -314,3 +314,8 @@ variable "node_env" {
   type        = string
   description = "NODE Environment Type"
 }
+
+variable "email_expiry_time" {
+  type        = number
+  description = "Email expiration time"
+}
