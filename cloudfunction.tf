@@ -1,10 +1,10 @@
 
 data "google_storage_bucket" "nameOfBucket" {
-  name = "csye6225-serverless-cf"
+  name = var.nameOfBucket
 }
 data "google_storage_bucket_object" "storageBucketObj" {
   bucket = data.google_storage_bucket.nameOfBucket.name
-  name   = "serverless.zip"
+  name   = var.nameOfStorageBucketFile
 }
 
 resource "google_cloudfunctions2_function" "cloudFunction" {
@@ -40,19 +40,24 @@ resource "google_cloudfunctions2_function" "cloudFunction" {
       EMAIL_DOMAIN = var.cf-email-domain
     }
   }
-
-  event_trigger {
-    trigger_region        = var.region
-    event_type            = var.cf-event_type
-    pubsub_topic          = google_pubsub_topic.webapp_pub_sub.id
-    retry_policy          = var.cf-retry_policy
-    service_account_email = google_service_account.google_service_acc_emailing.email
-  }
 }
 
 resource "google_pubsub_topic" "webapp_pub_sub" {
   name                       = var.pubsub-topicName
   message_retention_duration = var.pubsub-message_retention_duration
+}
+
+resource "google_pubsub_subscription" "webapp_sub" {
+  name                       = var.subscription-name
+  topic                      = google_pubsub_topic.webapp_pub_sub.name
+  message_retention_duration = var.pubsub-message_retention_duration
+  push_config {
+    push_endpoint = google_cloudfunctions2_function.cloudFunction.service_config[0].uri
+    oidc_token {
+      service_account_email = google_service_account.google_service_acc_emailing.email
+    }
+  }
+  depends_on = [google_cloudfunctions2_function.cloudFunction]
 }
 resource "google_service_account" "google_service_acc_emailing" {
   account_id = var.google_service_accountID_emailing
@@ -64,25 +69,6 @@ resource "google_project_iam_binding" "role-pubsub-publisher" {
   members = [google_service_account.google_service_acc.member]
 }
 
-# resource "google_pubsub_topic_iam_binding" "role-pubsub-viewer" {
-#   topic   = google_pubsub_topic.webapp_pub_sub.name
-#   role    = "roles/viewer"
-#   members = [google_service_account.google_service_acc.member, google_service_account.google_service_acc_emailing.member]
-# }
-
-# resource "google_cloudfunctions2_function_iam_binding" "role-cf-viewer" {
-#   location       = google_cloudfunctions2_function.cloudFunction.location
-#   cloud_function = google_cloudfunctions2_function.cloudFunction.name
-#   role           = "roles/viewer"
-#   members        = [google_service_account.google_service_acc_emailing.member]
-# }
-
-# resource "google_cloudfunctions2_function_iam_binding" "bindingCF2" {
-#   location       = google_cloudfunctions2_function.cloudFunction.location
-#   cloud_function = google_cloudfunctions2_function.cloudFunction.name
-#   role           = var.cf-role2
-#   members        = [google_service_account.google_service_acc_emailing.member]
-# }
 
 resource "google_service_account_iam_binding" "role-token-creater" {
   service_account_id = google_service_account.google_service_acc_emailing.name
@@ -90,13 +76,13 @@ resource "google_service_account_iam_binding" "role-token-creater" {
   members = [
     google_service_account.google_service_acc_emailing.member
   ]
-  depends_on = [ google_service_account.google_service_acc_emailing ]
+  depends_on = [google_service_account.google_service_acc_emailing]
 }
 
 resource "google_project_iam_binding" "role-cf-invoker" {
-  project = var.project_id
-  role    = "roles/run.invoker"
-  members = [google_service_account.google_service_acc_emailing.member]
+  project    = var.project_id
+  role       = "roles/run.invoker"
+  members    = [google_service_account.google_service_acc_emailing.member]
   depends_on = [google_service_account.google_service_acc_emailing]
 }
 

@@ -444,3 +444,18 @@ variable "cf-email-domain" {
   type        = string
   description = "Email domain name"
 }
+
+variable "subscription-name" {
+  type        = string
+  description = "Subscription name"
+}
+
+variable "nameOfBucket" {
+  type        = string
+  description = "Name of the bucket"
+}
+
+variable "nameOfStorageBucketFile" {
+  type        = string
+  description = "Name of the file in bucket"
+}
