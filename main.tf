@@ -179,17 +179,14 @@ EOT
 resource "google_compute_health_check" "webapp-health-check" {
   name = "webapp-health-check"
 
-  timeout_sec         = 2
-  check_interval_sec  = 5
+  timeout_sec         = 5
+  check_interval_sec  = 15
   healthy_threshold   = 3
   unhealthy_threshold = 3
 
   http_health_check {
-    port = var.web-port
-    # port_specification = "USE_FIXED_PORT"
-    # host               = "1.2.3.4"
+    port         = var.web-port
     request_path = "/healthz"
-    # proxy_header       = "NONE"
   }
 }
 
@@ -215,6 +212,11 @@ resource "google_compute_region_instance_group_manager" "webapp-mig" {
     }
   }
 
+  named_port {
+    name = "http"
+    port = 8080
+  }
+
   depends_on = [google_compute_region_instance_template.webapp-template, google_compute_health_check.webapp-health-check, google_compute_network.vpc_network,
     google_compute_subnetwork.subnet-1,
     google_sql_database_instance.db-instance,
@@ -238,13 +240,13 @@ resource "google_compute_region_autoscaler" "webapp-autoscaler" {
   depends_on = [google_compute_region_instance_group_manager.webapp-mig]
 }
 
-# resource "google_dns_record_set" "DNS_ARecord" {
-#   name         = var.dns_name
-#   managed_zone = var.dns_zone_name
-#   type         = var.dns_record_type
-#   rrdatas      = [google_compute_instance.webapp-instance.network_interface[0].access_config[0].nat_ip]
-#   depends_on   = [google_compute_instance.webapp-instance]
-# }
+resource "google_dns_record_set" "DNS_ARecord" {
+  name         = var.dns_name
+  managed_zone = var.dns_zone_name
+  type         = var.dns_record_type
+  rrdatas      = [module.gce-lb-http.external_ip]
+  depends_on   = [module.gce-lb-http]
+}
 
 resource "google_service_account" "google_service_acc" {
   account_id   = var.google_service_accountID
