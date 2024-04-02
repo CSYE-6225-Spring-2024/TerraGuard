@@ -1,11 +1,12 @@
 module "gce-lb-http" {
-  source                          = "terraform-google-modules/lb-http/google"
-  version                         = "~> 10.0"
-  name                            = "lb-webapp"
-  project                         = var.project_id
-  firewall_networks               = [google_compute_network.vpc_network.name]
-  ssl                             = true
-  managed_ssl_certificate_domains = ["safehubnest.me"]
+  source            = "terraform-google-modules/lb-http/google"
+  version           = "~> 10.0"
+  name              = "lb-webapp"
+  project           = var.project_id
+  firewall_networks = [google_compute_network.vpc_network.name]
+  ssl               = true
+  # managed_ssl_certificate_domains = ["safehubnest.me"]
+  ssl_certificates = [google_compute_ssl_certificate.ssl-certf.self_link]
   backends = {
     default = {
       protocol    = "HTTP"
@@ -34,5 +35,14 @@ module "gce-lb-http" {
         sample_rate = 1.0
       }
     }
+  }
+}
+
+resource "google_compute_ssl_certificate" "ssl-certf" {
+  name_prefix = "webapp-certificate"
+  private_key = file("private.key")
+  certificate = file("safehubnest_me.crt")
+  lifecycle {
+    create_before_destroy = true
   }
 }
