@@ -1,15 +1,15 @@
-# resource "google_compute_firewall" "webapp-firewall1" {
-#   name    = var.firewall_name1
-#   network = google_compute_network.vpc_network.id
-#   allow {
-#     protocol = var.allowed_protocol_firewall1
-#     ports    = var.application_ports_firewall1
-#   }
+resource "google_compute_firewall" "webapp-firewall1" {
+  name    = var.firewall_name1
+  network = google_compute_network.vpc_network.id
+  allow {
+    protocol = var.allowed_protocol_firewall1
+    ports    = var.application_ports_firewall1
+  }
 
-#   source_ranges = [module.gce-lb-http.external_ip]
-#   target_tags   = var.fw1-target-tags
-#   depends_on    = [module.gce-lb-http]
-# }
+  source_ranges = [module.gce-lb-http.external_ip]
+  target_tags   = var.fw1-target-tags
+  depends_on    = [module.gce-lb-http]
+}
 
 resource "google_compute_firewall" "webapp-firewall2" {
   name    = var.firewall_name2
