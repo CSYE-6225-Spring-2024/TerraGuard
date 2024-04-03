@@ -459,3 +459,101 @@ variable "nameOfStorageBucketFile" {
   type        = string
   description = "Name of the file in bucket"
 }
+
+variable "webapp-template-name" {
+  type        = string
+  description = "Name of the webapp template"
+}
+
+variable "webapp-health-check-name" {
+  type        = string
+  description = "Name of the webapp health check"
+}
+variable "webapp-health-check-timeout_sec" {
+  type        = number
+  description = "timeout seconds of the webapp health check"
+}
+
+variable "webapp-health-check-check_interval_sec" {
+  type        = number
+  description = "Check interval seconds of the webapp health check"
+}
+
+variable "webapp-health-check-healthy_threshold" {
+  type        = number
+  description = "healthy threshold seconds of the webapp health check"
+}
+
+variable "webapp-health-check-unhealthy_threshold" {
+  type        = number
+  description = "unhealthy threshold seconds of the webapp health check"
+}
+
+variable "webapp-health-check-request_path" {
+  type        = string
+  description = "Request path for webapp health"
+}
+
+variable "mig-name" {
+  type        = string
+  description = "MIG name"
+}
+
+variable "mig-base_instance_name" {
+  type        = string
+  description = "MIG instance name"
+}
+
+variable "mig-distribution_policy_zones" {
+  type        = list(string)
+  description = "MIG distribution policy zones"
+}
+
+variable "mig-named_port" {
+  type        = string
+  description = "MIG mig port name"
+}
+
+variable "autoscaler-name" {
+  type        = string
+  description = "Autoscaler name"
+}
+
+variable "autoscaler-max_replicas" {
+  type        = number
+  description = "autoscaler-max_replicas"
+}
+
+variable "autoscaler-min_replicas" {
+  type        = number
+  description = "autoscaler-min_replicas"
+}
+
+variable "autoscaler-cooldown_period" {
+  type        = number
+  description = "autoscaler-cooldown_period"
+}
+
+variable "autoscaler-cpu-utilization-target" {
+  type        = number
+  description = "autoscaler cpu util target"
+}
+
+variable "mig-initial_delay_sec" {
+  type        = number
+  description = "MIG initial delay seconds"
+}
+
+variable "lb-name" {
+  type        = string
+  description = "Load balancer name"
+}
+
+variable "lb-managed_ssl_certificate_domains" {
+  type        = list(string)
+  description = "Load balancer ssl certificate domain"
+}
+variable "lb-backend-timeout_sec" {
+  type        = number
+  description = "Load balancer backend service timeout sec"
+}
