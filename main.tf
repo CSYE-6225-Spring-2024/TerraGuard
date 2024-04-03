@@ -62,72 +62,20 @@ resource "google_compute_route" "webapp-route" {
   next_hop_gateway = var.route_gateway
 }
 
-# resource "google_compute_instance" "webapp-instance" {
-#   name = var.vm_instance_name
-#   boot_disk {
-#     initialize_params {
-#       image = var.image_name
-#       type  = var.disk_type
-#       size  = var.disk_size
-#     }
-#   }
-#   machine_type = var.instance_machine_type
-#   network_interface {
-#     network    = google_compute_network.vpc_network.id
-#     subnetwork = google_compute_subnetwork.subnet-1.id
-#     access_config {
-#       network_tier = var.access_config_network_tier
-#     }
-#   }
-#   allow_stopping_for_update = true
-#   depends_on = [
-#     google_compute_network.vpc_network,
-#     google_compute_subnetwork.subnet-1,
-#     google_sql_database_instance.db-instance,
-#     google_service_account.google_service_acc
-#   ]
-
-#   service_account {
-#     email  = google_service_account.google_service_acc.email
-#     scopes = ["logging-write", "monitoring-write", "pubsub"]
-#   }
-
-#   tags = var.webapp-inst-tags
-#   metadata = {
-#     startup-script = <<-EOT
-# #!/bin/bash
-# cd /opt/webapp/
-# if [ -e .env ]; then
-#   sudo rm .env
-# fi
-# sudo tee -a .env <<EOF >/dev/null
-# DB_NAME=${var.db-name}
-# DB_PWD=${random_password.password.result}
-# DB_USER=${var.db-username}
-# DB_HOST=${google_sql_database_instance.db-instance.private_ip_address}
-# WEB_PORT=${var.web-port}
-# DB_PORT=${var.db-port}
-# NODE_ENV=${var.node_env}
-# EMAIL_EXPIRY=${var.email_expiry_time}
-# EOF
-# sudo chown csye6225:csye6225 .env
-# EOT
-#   }
-# }
 data "google_compute_image" "webapp-image" {
   family  = var.image_name
   project = var.project_id
 }
 
 resource "google_compute_region_instance_template" "webapp-template" {
-  name         = "webapp-template"
+  name         = var.webapp-template-name
   tags         = var.webapp-inst-tags
   machine_type = var.instance_machine_type
 
   disk {
     source_image = data.google_compute_image.webapp-image.self_link
     disk_type    = var.disk_type
-    disk_size_gb = 100
+    disk_size_gb = var.disk_size
   }
 
   network_interface {
@@ -177,25 +125,24 @@ EOT
 }
 
 resource "google_compute_health_check" "webapp-health-check" {
-  name = "webapp-health-check"
-
-  timeout_sec         = 5
-  check_interval_sec  = 15
-  healthy_threshold   = 3
-  unhealthy_threshold = 3
+  name                = var.webapp-health-check-name
+  timeout_sec         = var.webapp-health-check-timeout_sec
+  check_interval_sec  = var.webapp-health-check-check_interval_sec
+  healthy_threshold   = var.webapp-health-check-healthy_threshold
+  unhealthy_threshold = var.webapp-health-check-unhealthy_threshold
 
   http_health_check {
     port         = var.web-port
-    request_path = "/healthz"
+    request_path = var.webapp-health-check-request_path
   }
 }
 
 resource "google_compute_region_instance_group_manager" "webapp-mig" {
   provider                  = google-beta
-  name                      = "webapp-mig"
-  base_instance_name        = "webapp"
+  name                      = var.mig-name
+  base_instance_name        = var.mig-base_instance_name
   region                    = var.region
-  distribution_policy_zones = ["us-east1-b", "us-east1-c"]
+  distribution_policy_zones = var.mig-distribution_policy_zones
 
   version {
     instance_template = google_compute_region_instance_template.webapp-template.self_link
@@ -203,7 +150,7 @@ resource "google_compute_region_instance_group_manager" "webapp-mig" {
 
   auto_healing_policies {
     health_check      = google_compute_health_check.webapp-health-check.id
-    initial_delay_sec = 300
+    initial_delay_sec = var.mig-initial_delay_sec
   }
 
   all_instances_config {
@@ -213,8 +160,8 @@ resource "google_compute_region_instance_group_manager" "webapp-mig" {
   }
 
   named_port {
-    name = "http"
-    port = 8080
+    name = var.mig-named_port
+    port = var.web-port
   }
 
   depends_on = [google_compute_region_instance_template.webapp-template, google_compute_health_check.webapp-health-check, google_compute_network.vpc_network,
@@ -224,17 +171,17 @@ resource "google_compute_region_instance_group_manager" "webapp-mig" {
 }
 
 resource "google_compute_region_autoscaler" "webapp-autoscaler" {
-  name   = "webapp-autoscaler"
+  name   = var.autoscaler-name
   region = var.region
   target = google_compute_region_instance_group_manager.webapp-mig.id
 
   autoscaling_policy {
-    max_replicas    = 3
-    min_replicas    = 1
-    cooldown_period = 45
+    max_replicas    = var.autoscaler-max_replicas
+    min_replicas    = var.autoscaler-min_replicas
+    cooldown_period = var.autoscaler-cooldown_period
 
     cpu_utilization {
-      target = 0.05
+      target = var.autoscaler-cpu-utilization-target
     }
   }
   depends_on = [google_compute_region_instance_group_manager.webapp-mig]

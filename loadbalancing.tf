@@ -1,26 +1,28 @@
 module "gce-lb-http" {
-  source            = "terraform-google-modules/lb-http/google"
-  version           = "~> 10.0"
-  name              = "lb-webapp"
-  project           = var.project_id
-  firewall_networks = [google_compute_network.vpc_network.name]
-  ssl               = true
-  # managed_ssl_certificate_domains = ["safehubnest.me"]
-  ssl_certificates = [google_compute_ssl_certificate.ssl-certf.self_link]
+  source                          = "terraform-google-modules/lb-http/google"
+  version                         = "~> 10.0"
+  name                            = var.lb-name
+  project                         = var.project_id
+  http_forward                    = false
+  target_tags                     = var.webapp-inst-tags
+  firewall_networks               = [google_compute_network.vpc_network.name]
+  ssl                             = true
+  managed_ssl_certificate_domains = var.lb-managed_ssl_certificate_domains
+  # ssl_certificates = [google_compute_ssl_certificate.ssl-certf.self_link]
   backends = {
     default = {
       protocol    = "HTTP"
-      port        = 8080
-      port_name   = "http"
-      timeout_sec = 15
+      port        = var.web-port
+      port_name   = var.mig-named_port
+      timeout_sec = var.lb-backend-timeout_sec
       enable_cdn  = false
       health_check = {
-        request_path        = "/healthz"
-        port                = 8080
-        timeout_sec         = 5
-        check_interval_sec  = 15
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
+        request_path        = var.webapp-health-check-request_path
+        port                = var.web-port
+        timeout_sec         = var.webapp-health-check-timeout_sec
+        check_interval_sec  = var.webapp-health-check-check_interval_sec
+        healthy_threshold   = var.webapp-health-check-healthy_threshold
+        unhealthy_threshold = var.webapp-health-check-unhealthy_threshold
       }
       iap_config = {
         enable = false
@@ -38,11 +40,11 @@ module "gce-lb-http" {
   }
 }
 
-resource "google_compute_ssl_certificate" "ssl-certf" {
-  name_prefix = "webapp-certificate"
-  private_key = file("private.key")
-  certificate = file("safehubnest_me.crt")
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+# resource "google_compute_ssl_certificate" "ssl-certf" {
+#   name_prefix = "webapp-certificate"
+#   private_key = file("private.key")
+#   certificate = file("safehubnest_me.crt")
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
