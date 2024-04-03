@@ -557,3 +557,8 @@ variable "lb-backend-timeout_sec" {
   type        = number
   description = "Load balancer backend service timeout sec"
 }
+
+variable "ssl-certi-name" {
+  type        = string
+  description = "SSL certificate name"
+}

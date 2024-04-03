@@ -1,14 +1,14 @@
 module "gce-lb-http" {
-  source                          = "terraform-google-modules/lb-http/google"
-  version                         = "~> 10.0"
-  name                            = var.lb-name
-  project                         = var.project_id
-  http_forward                    = false
-  target_tags                     = var.webapp-inst-tags
-  firewall_networks               = [google_compute_network.vpc_network.name]
-  ssl                             = true
-  managed_ssl_certificate_domains = var.lb-managed_ssl_certificate_domains
-  # ssl_certificates = [google_compute_ssl_certificate.ssl-certf.self_link]
+  source            = "terraform-google-modules/lb-http/google"
+  version           = "~> 10.0"
+  name              = var.lb-name
+  project           = var.project_id
+  http_forward      = false
+  target_tags       = var.webapp-inst-tags
+  firewall_networks = [google_compute_network.vpc_network.name]
+  ssl               = true
+  #managed_ssl_certificate_domains = var.lb-managed_ssl_certificate_domains
+  ssl_certificates = [data.google_compute_ssl_certificate.ssl-certf.self_link]
   backends = {
     default = {
       protocol    = "HTTP"
@@ -40,6 +40,9 @@ module "gce-lb-http" {
   }
 }
 
+data "google_compute_ssl_certificate" "ssl-certf" {
+  name = var.ssl-certi-name
+}
 # resource "google_compute_ssl_certificate" "ssl-certf" {
 #   name_prefix = "webapp-certificate"
 #   private_key = file("private.key")
