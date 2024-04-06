@@ -17,8 +17,9 @@ resource "google_service_networking_connection" "svc_ntw_conn" {
 }
 
 resource "google_sql_database_instance" "db-instance" {
-  name             = "db-${random_string.instance-name.result}-inst"
-  database_version = var.db-version
+  name                = "db-${random_string.instance-name.result}-inst"
+  database_version    = var.db-version
+  encryption_key_name = data.google_kms_crypto_key.sql-instance-key.id
   settings {
     tier      = var.sql-inst-tier
     disk_size = var.sql-inst-disk-size

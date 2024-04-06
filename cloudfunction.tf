@@ -1,10 +1,17 @@
 
-data "google_storage_bucket" "nameOfBucket" {
+resource "google_storage_bucket" "nameOfBucket" {
   name = var.nameOfBucket
+  location = var.region
+  uniform_bucket_level_access = true
+  encryption {
+    default_kms_key_name = data.google_kms_crypto_key.storage-bucket-key.id
+  }
 }
-data "google_storage_bucket_object" "storageBucketObj" {
-  bucket = data.google_storage_bucket.nameOfBucket.name
+
+resource "google_storage_bucket_object" "storageBucketObj" {
+  bucket = google_storage_bucket.nameOfBucket.name
   name   = var.nameOfStorageBucketFile
+  source = "serverless.zip"
 }
 
 resource "google_cloudfunctions2_function" "cloudFunction" {
@@ -16,8 +23,8 @@ resource "google_cloudfunctions2_function" "cloudFunction" {
 
     source {
       storage_source {
-        bucket = data.google_storage_bucket.nameOfBucket.name
-        object = data.google_storage_bucket_object.storageBucketObj.name
+        bucket = google_storage_bucket.nameOfBucket.name
+        object = google_storage_bucket_object.storageBucketObj.name
       }
     }
   }
