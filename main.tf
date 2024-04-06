@@ -71,11 +71,14 @@ resource "google_compute_region_instance_template" "webapp-template" {
   name         = var.webapp-template-name
   tags         = var.webapp-inst-tags
   machine_type = var.instance_machine_type
-
   disk {
     source_image = data.google_compute_image.webapp-image.self_link
     disk_type    = var.disk_type
     disk_size_gb = var.disk_size
+
+    # disk_encryption_key {
+    #   kms_key_self_link = data.google_kms_crypto_key.vm-instance-key.id
+    # }
   }
 
   network_interface {
@@ -88,7 +91,7 @@ resource "google_compute_region_instance_template" "webapp-template" {
 
   service_account {
     email  = google_service_account.google_service_acc.email
-    scopes = ["logging-write", "monitoring-write", "pubsub"]
+    scopes = ["logging-write", "monitoring-write", "pubsub", "cloud-platform"]
   }
 
   lifecycle {
