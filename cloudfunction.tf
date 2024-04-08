@@ -6,7 +6,7 @@ resource "google_storage_bucket" "nameOfBucket" {
   encryption {
     default_kms_key_name = data.google_kms_crypto_key.storage-bucket-key.id
   }
-  depends_on = [data.google_storage_project_service_account.gcs_account_bucket]
+  depends_on = [google_kms_crypto_key_iam_binding.storage-bucket-binding]
 }
 
 resource "google_storage_bucket_object" "storageBucketObj" {
