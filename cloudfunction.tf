@@ -1,11 +1,12 @@
 
 resource "google_storage_bucket" "nameOfBucket" {
-  name = var.nameOfBucket
-  location = var.region
+  name                        = var.nameOfBucket
+  location                    = var.region
   uniform_bucket_level_access = true
   encryption {
     default_kms_key_name = data.google_kms_crypto_key.storage-bucket-key.id
   }
+  depends_on = [data.google_storage_project_service_account.gcs_account_bucket]
 }
 
 resource "google_storage_bucket_object" "storageBucketObj" {
