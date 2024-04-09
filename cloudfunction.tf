@@ -4,7 +4,7 @@ resource "google_storage_bucket" "nameOfBucket" {
   location                    = var.region
   uniform_bucket_level_access = true
   encryption {
-    default_kms_key_name = data.google_kms_crypto_key.storage-bucket-key.id
+    default_kms_key_name = google_kms_crypto_key.storage-bucket-key.id
   }
   depends_on = [google_kms_crypto_key_iam_binding.storage-bucket-binding]
 }
