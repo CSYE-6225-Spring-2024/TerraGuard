@@ -77,7 +77,7 @@ resource "google_compute_region_instance_template" "webapp-template" {
     disk_size_gb = var.disk_size
 
     disk_encryption_key {
-      kms_key_self_link = data.google_kms_crypto_key.vminstance-key.id
+      kms_key_self_link = google_kms_crypto_key.vminstance-key.id
     }
   }
 
