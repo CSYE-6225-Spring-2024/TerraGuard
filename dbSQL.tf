@@ -34,7 +34,7 @@ resource "google_sql_database_instance" "db-instance" {
   project             = var.project_id
   deletion_protection = false
   depends_on = [google_compute_network.vpc_network,
-  google_service_networking_connection.svc_ntw_conn]
+  google_service_networking_connection.svc_ntw_conn, google_kms_crypto_key_iam_binding.sql-key-iam]
 }
 
 resource "google_sql_database" "database" {

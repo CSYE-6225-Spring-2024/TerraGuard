@@ -562,3 +562,18 @@ variable "ssl-certi-name" {
   type        = string
   description = "SSL certificate name"
 }
+
+variable "rotation_period" {
+  type        = string
+  description = "Rotation period of CMEK keys"
+}
+
+variable "destroy_scheduled_duration" {
+  type        = string
+  description = "Time after which the keys will be destroyed"
+}
+
+variable "source_bucket_file" {
+  type        = string
+  description = "Source bucket file"
+}

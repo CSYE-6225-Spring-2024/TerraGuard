@@ -91,7 +91,7 @@ resource "google_compute_region_instance_template" "webapp-template" {
 
   service_account {
     email  = google_service_account.google_service_acc.email
-    scopes = ["logging-write", "monitoring-write", "pubsub", "cloud-platform"]
+    scopes = ["logging-write", "monitoring-write", "pubsub"]
   }
 
   lifecycle {
@@ -123,7 +123,8 @@ EOT
     google_compute_network.vpc_network,
     google_compute_subnetwork.subnet-1,
     google_sql_database_instance.db-instance,
-    google_service_account.google_service_acc
+    google_service_account.google_service_acc,
+    google_project_iam_binding.vminstance-binding-key
   ]
 }
 

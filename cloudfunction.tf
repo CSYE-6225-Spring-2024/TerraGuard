@@ -12,7 +12,7 @@ resource "google_storage_bucket" "nameOfBucket" {
 resource "google_storage_bucket_object" "storageBucketObj" {
   bucket = google_storage_bucket.nameOfBucket.name
   name   = var.nameOfStorageBucketFile
-  source = "serverless.zip"
+  source = var.source_bucket_file
 }
 
 resource "google_cloudfunctions2_function" "cloudFunction" {
