@@ -7,8 +7,7 @@ module "gce-lb-http" {
   target_tags       = var.webapp-inst-tags
   firewall_networks = [google_compute_network.vpc_network.name]
   ssl               = true
-  #managed_ssl_certificate_domains = var.lb-managed_ssl_certificate_domains
-  ssl_certificates = [data.google_compute_ssl_certificate.ssl-certf.self_link]
+  ssl_certificates  = [data.google_compute_ssl_certificate.ssl-certf.self_link]
   backends = {
     default = {
       protocol    = "HTTP"
@@ -43,11 +42,3 @@ module "gce-lb-http" {
 data "google_compute_ssl_certificate" "ssl-certf" {
   name = var.ssl-certi-name
 }
-# resource "google_compute_ssl_certificate" "ssl-certf" {
-#   name_prefix = "webapp-certificate"
-#   private_key = file("private.key")
-#   certificate = file("safehubnest_me.crt")
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }

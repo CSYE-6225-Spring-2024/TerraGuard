@@ -19,8 +19,8 @@ resource "google_kms_key_ring" "keyring" {
 resource "google_kms_crypto_key" "sql-instance-key" {
   name                       = "cloudsql-${random_string.key-name.result}-key"
   key_ring                   = google_kms_key_ring.keyring.id
-  rotation_period            = "2592000s"
-  destroy_scheduled_duration = "86400s"
+  rotation_period            = var.rotation_period
+  destroy_scheduled_duration = var.destroy_scheduled_duration
 }
 
 resource "google_kms_crypto_key_iam_binding" "sql-key-iam" {
@@ -44,8 +44,8 @@ data "google_storage_project_service_account" "gcs_account_bucket" {
 resource "google_kms_crypto_key" "storage-bucket-key" {
   name                       = "stgebckt-${random_string.key-name.result}-key"
   key_ring                   = google_kms_key_ring.keyring.id
-  rotation_period            = "2592000s"
-  destroy_scheduled_duration = "86400s"
+  rotation_period            = var.rotation_period
+  destroy_scheduled_duration = var.destroy_scheduled_duration
 }
 
 resource "google_kms_crypto_key_iam_binding" "storage-bucket-binding" {
@@ -59,8 +59,8 @@ resource "google_kms_crypto_key_iam_binding" "storage-bucket-binding" {
 resource "google_kms_crypto_key" "vminstance-key" {
   name                       = "vm-${random_string.key-name.result}-key"
   key_ring                   = google_kms_key_ring.keyring.id
-  rotation_period            = "2592000s"
-  destroy_scheduled_duration = "86400s"
+  rotation_period            = var.rotation_period
+  destroy_scheduled_duration = var.destroy_scheduled_duration
 }
 
 data "google_project" "project" {
