@@ -1,0 +1,6 @@
+[submodule "serverless-cf"]
+	path = serverless-cf
+	url = https://github.com/CSYE-6225-Spring-2024/serverless
+[submodule "user-auth-app"]
+	path = user-auth-app
+	url = https://github.com/CSYE-6225-Spring-2024/webapp
