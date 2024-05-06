@@ -16,18 +16,15 @@ The `user-auth-app` folder serves as a submodule within *TerraGuard* repository.
 - **Authorization**: Ensures that access to information is secure and restricted to authorized users.
 
 #### 2\. Testing
-
 The repository includes test cases for the web application, ensuring that each component functions correctly and efficiently. These tests are crucial for maintaining the reliability of the application, particularly when updates or changes are introduced.
 
 #### 3\. Packer Configuration
-
 The project utilizes Packer to create machine images, which are essential for deploying consistent and predictable environments. The repository contains:
 
 - **Packer Setup**: Configuration files necessary for Packer to create the machine images.
 - **Build Files**: Scripts and commands that define the steps Packer follows to build the images.
 
 #### 4\. CI/CD Workflows
-
 Continuous integration and continuous deployment (CI/CD) are implemented to automate the testing and deployment processes. The workflows triggered on pull requests include:
 
 - **Testing**: Automated tests are run to validate the functionality and stability of the web application.
@@ -38,4 +35,9 @@ This setup not only streamlines the development and deployment processes but als
 
 ### terraform-gcp-infra
 
+#### 1\. Overview
+The `==terraform-gcp-infra==` folder is a submodule within the TerraGuard repository, dedicated to managing **==Infrastructure as Code (IaC)==** using Terraform for deployments on Google Cloud Platform (GCP). This submodule is instrumental in provisioning and managing a wide array of resources such as **CloudSQL databases, encryption keys, compute instances, templates, firewalls, service accounts, autoscalers, managed instance groups, and serverless cloud functions**. Terraform automates the creation and teardown of these resources, ensuring efficient and reproducible deployments.
 ### serverless-cf
+
+#### 1\. Overview
+The `serverless-cf folder` is another submodule within the TerraGuard repository, containing the code for a serverless cloud function ==**(Function as a Service, or FaaS)**==. This function utilizes an event-driven architecture and is activated by **==Google Cloud Pub/Sub==** through a push mechanism. When triggered, it orchestrates the sending of a verification link via email to the user, which includes an expiration time for added security. This setup ensures efficient, scalable handling of user verification processes without the need for dedicated server infrastructure.
