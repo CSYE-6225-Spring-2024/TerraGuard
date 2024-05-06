@@ -8,24 +8,25 @@ TerraGuard stands as a premier project demonstrating my adaptability to diverse 
 
 ### user-auth-app
 
+#### 1\. Overview
 The `user-auth-app` folder serves as a submodule within *TerraGuard* repository. It contains the application that facilitates user authentication and management. Key functionalities include:
 
 - **Account Creation**: Users can register and create their own accounts.
 - **User Management**: Users can retrieve and update their personal details.
 - **Authorization**: Ensures that access to information is secure and restricted to authorized users.
 
-### 2\. Testing
+#### 2\. Testing
 
 The repository includes test cases for the web application, ensuring that each component functions correctly and efficiently. These tests are crucial for maintaining the reliability of the application, particularly when updates or changes are introduced.
 
-### 3\. Packer Configuration
+#### 3\. Packer Configuration
 
 The project utilizes Packer to create machine images, which are essential for deploying consistent and predictable environments. The repository contains:
 
 - **Packer Setup**: Configuration files necessary for Packer to create the machine images.
 - **Build Files**: Scripts and commands that define the steps Packer follows to build the images.
 
-### 4\. CI/CD Workflows
+#### 4\. CI/CD Workflows
 
 Continuous integration and continuous deployment (CI/CD) are implemented to automate the testing and deployment processes. The workflows triggered on pull requests include:
 
