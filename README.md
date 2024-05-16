@@ -6,6 +6,8 @@ TerraGuard stands as a premier project demonstrating my adaptability to diverse 
 
 ### Infrastructure
 
+![Alt text](https://github.com/tf-gcp-2024/TerraGuard/blob/main/terraguard-infra.jpg?raw=true)
+
 ### user-auth-app
 
 #### 1\. Overview
